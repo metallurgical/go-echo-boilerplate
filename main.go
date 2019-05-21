@@ -1,12 +1,14 @@
 package main
 
 import (
+	_ "fmt"
 	"github.com/labstack/gommon/log"
 	"github.com/metallurgical/go-echo-boilerplate/config"
 	"github.com/metallurgical/go-echo-boilerplate/routes"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/joho/godotenv"
+	_ "net/http"
 )
 
 func main() {

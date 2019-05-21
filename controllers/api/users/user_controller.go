@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 
-func GetAll(c echo.Context) error {
+func Index(c echo.Context) error {
 	return c.String(http.StatusOK, "All users from api")
 }
