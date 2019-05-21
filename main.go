@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	e := echo.New()
-
 	// Load environment file
 	err := godotenv.Load()
 	if err != nil {
@@ -21,20 +19,36 @@ func main() {
 	// Load config files
 	config.AppNew()
 
-	// Global middleware for all routes
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// CORS handlers
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	// Define API wrapper
+	api := echo.New()
+	api.Use(middleware.Logger())
+	api.Use(middleware.Recover())
+	// CORS middleware for API endpoint.
+	api.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
+	routes.DefineApiRoute(api)
 
-	// Register both web and api routes.
-	routes.DefineApiRoute(e)
-	routes.DefineWebRoute(e)
+	// Define WEB wrapper
+	web := echo.New()
+	web.Use(middleware.Logger())
+	web.Use(middleware.Recover())
+	routes.DefineWebRoute(web)
+
+	server := echo.New()
+	server.Any("/*", func(c echo.Context) (err error) {
+		req := c.Request()
+		res := c.Response()
+
+		if req.URL.Path[:4] == "/api" {
+			api.ServeHTTP(res, req)
+		} else {
+			web.ServeHTTP(res, req)
+		}
+		return
+	})
 
 	// Start server to listen to port 1200
-	e.Logger.Fatal(e.Start(":1200"))
+	server.Logger.Fatal(server.Start(":1200"))
 }
