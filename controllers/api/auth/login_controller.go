@@ -53,12 +53,14 @@ func Login(connection database.DatabaseProvider) func(ctx echo.Context) error {
 	}
 }
 
+// Checking whether user exist or not in database with
+// provided email and password
 func isUserExist(email, password string) bool {
 	db.Where("email = ?", email).First(&user).Count(&count)
 	if count == 0 {
 		return false
 	}
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return false;
 	}
 	return true
