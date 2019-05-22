@@ -2,13 +2,14 @@ package main
 
 import (
 	_ "fmt"
-	"github.com/labstack/gommon/log"
-	"github.com/metallurgical/go-echo-boilerplate/config"
-	"github.com/metallurgical/go-echo-boilerplate/routes"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/joho/godotenv"
+	"github.com/labstack/gommon/log"
+	"github.com/metallurgical/go-echo-boilerplate/database"
+	"github.com/metallurgical/go-echo-boilerplate/routes"
 	_ "net/http"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
@@ -18,8 +19,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Load config files
-	config.AppNew()
+	databasePool := database.ConnectMYSQL().(*database.DatabaseProviderConnection)
 
 	// Define API wrapper
 	api := echo.New()
@@ -30,7 +30,7 @@ func main() {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
-	routes.DefineApiRoute(api)
+	routes.DefineApiRoute(api, databasePool)
 
 	// Define WEB wrapper
 	web := echo.New()

@@ -4,12 +4,12 @@ import "os"
 
 type App interface {}
 
-type app struct {
+type AppConfig struct {
 	AppName string
 }
 
 func AppNew() App {
-	return app{
+	return AppConfig{
 		AppName : os.Getenv("APP_NAME"),
 	}
 }
