@@ -2,21 +2,14 @@ package auth
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"github.com/metallurgical/go-echo-boilerplate/database"
 	"github.com/metallurgical/go-echo-boilerplate/models"
 	"net/http"
 	"time"
-	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	db    *gorm.DB
-	count int
-	user  models.User
-)
-
+// Get login information as well as user JWT token.
 func Login(connection database.DatabaseProvider) func(ctx echo.Context) error {
 	return func(c echo.Context) error {
 		var (
@@ -28,11 +21,11 @@ func Login(connection database.DatabaseProvider) func(ctx echo.Context) error {
 
 		// Make a checking in database instead
 		if email == "" || password == "" {
-			return echo.ErrUnauthorized
+			return echo.NewHTTPError(403, "Please provide email and password credentials")
 		}
 
 		db = connection.(*database.DatabaseProviderConnection).Db
-		if ok := isUserExist(email, password); !ok {
+		if ok := (&models.User{Db: db}).IsUserExistByEmailPassword(email, password); !ok {
 			return echo.ErrUnauthorized
 		}
 		// Create token
@@ -51,17 +44,4 @@ func Login(connection database.DatabaseProvider) func(ctx echo.Context) error {
 			"token": t,
 		})
 	}
-}
-
-// Checking whether user exist or not in database with
-// provided email and password
-func isUserExist(email, password string) bool {
-	db.Where("email = ?", email).First(&user).Count(&count)
-	if count == 0 {
-		return false
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return false;
-	}
-	return true
 }

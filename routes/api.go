@@ -4,7 +4,7 @@ import (
 	_ "fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	LoginController "github.com/metallurgical/go-echo-boilerplate/controllers/api/auth"
+	AuthController "github.com/metallurgical/go-echo-boilerplate/controllers/api/auth"
 	UserController "github.com/metallurgical/go-echo-boilerplate/controllers/api/users"
 	"github.com/metallurgical/go-echo-boilerplate/database"
 )
@@ -34,7 +34,8 @@ func DefineApiRoute(e *echo.Echo, connection database.DatabaseProvider) {
 		// Login, register, reset password, forgot password routes.
 		// /auth/*
 		auth := v1.Group(routes.Auth)
-		auth.POST("/login", LoginController.Login(connection)).Name = "auth.login"
+		auth.POST("/login", AuthController.Login(connection)).Name = "auth.login"
+		auth.POST("/password/reset", AuthController.ResetPassword(connection)).Name = "auth.password.reset"
 
 		// Authenticated user only can access these routes.
 		v1.Use(authenticated)

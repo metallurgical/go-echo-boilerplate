@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "fmt"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -9,7 +10,6 @@ import (
 	"github.com/metallurgical/go-echo-boilerplate/database"
 	"github.com/metallurgical/go-echo-boilerplate/routes"
 	_ "net/http"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
